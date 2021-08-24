@@ -1,0 +1,3 @@
+[submodule "deps/ckb-system-scripts"]
+	path = deps/ckb-system-scripts
+	url = https://github.com/nervosnetwork/ckb-system-scripts.git
