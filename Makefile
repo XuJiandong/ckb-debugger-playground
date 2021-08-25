@@ -16,13 +16,15 @@ LDFLAGS := -Wl,-static
 
 BUILDER_DOCKER := nervos/ckb-riscv-gnu-toolchain@sha256:aae8a3f79705f67d505d1f1d5ddc694a4fd537ed1c7e9622420a470d59ba2ec3
 
-all: build/fib
+all: build/fib build/panic
 
 all-via-docker:
 	docker run --rm -v `pwd`:/code ${BUILDER_DOCKER} bash -c "cd /code && make"
 
 build/fib: c/fib.c
-	mkdir -p build
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+
+build/panic: c/panic.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 run:
@@ -30,6 +32,9 @@ run:
 
 run-simple-binary:
 	ckb-debugger --simple-binary build/fib
+
+run-simple-binary-panic:
+	ckb-debugger --simple-binary build/panic
 
 run-simple-binary-pprof:
 	ckb-debugger --simple-binary build/fib --pprof=build/fib.pprof
