@@ -33,8 +33,12 @@ run:
 run-simple-binary:
 	ckb-debugger --simple-binary build/fib
 
+run-simple-binary-debug:
+	ckb-debugger --simple-binary build/fib --listen 127.0.0.1:9999
+
+
 run-simple-binary-panic:
-	ckb-debugger --simple-binary build/panic
+	ckb-debugger --pprof=/dev/null --simple-binary  build/panic
 
 run-simple-binary-pprof:
 	ckb-debugger --simple-binary build/fib --pprof=build/fib.pprof
