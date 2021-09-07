@@ -16,7 +16,7 @@ LDFLAGS := -Wl,-static
 
 BUILDER_DOCKER := nervos/ckb-riscv-gnu-toolchain@sha256:aae8a3f79705f67d505d1f1d5ddc694a4fd537ed1c7e9622420a470d59ba2ec3
 
-all: build/fib build/panic
+all: build/fib build/panic build/overlapping
 
 all-via-docker:
 	docker run --rm -v `pwd`:/code ${BUILDER_DOCKER} bash -c "cd /code && make"
@@ -27,26 +27,31 @@ build/fib: c/fib.c
 build/panic: c/panic.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
+build/overlapping: c/overlapping.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+
 run:
 	ckb-debugger --tx-file sample-data/data1.json  --cell-index 0 --cell-type input --script-group-type lock
 
 run-simple-binary:
-	ckb-debugger --simple-binary build/fib
+	ckb-debugger --bin build/fib
 
 run-simple-binary-debug:
-	ckb-debugger --simple-binary build/fib --listen 127.0.0.1:9999
-
+	ckb-debugger --bin build/fib --gdb-listen 127.0.0.1:9999
 
 run-simple-binary-panic:
-	ckb-debugger --pprof=/dev/null --simple-binary  build/panic
+	ckb-debugger --bin  build/panic
+
+run-simple-binary-overlapping:
+	ckb-debugger --bin  build/overlapping
 
 run-simple-binary-pprof:
-	ckb-debugger --simple-binary build/fib --pprof=build/fib.pprof
+	ckb-debugger --bin build/fib --pprof=build/fib.pprof
 	cat build/fib.pprof | inferno-flamegraph > build/fib.svg
 
 run-debugger:
-	ckb-debugger --listen 127.0.0.1:${PORT} --tx-file sample-data/data1.json  --cell-index 0 --cell-type input --script-group-type lock \
-	--replace-binary deps/ckb-system-scripts/specs/cells/secp256k1_blake160_sighash_all
+	ckb-debugger --mode gdb --gdb-listen 127.0.0.1:${PORT} --tx-file sample-data/data1.json  --cell-index 0 --cell-type input --script-group-type lock \
+	--bin deps/ckb-system-scripts/specs/cells/secp256k1_blake160_sighash_all
 
 run-gdb:
 	cd deps/ckb-system-scripts && riscv64-unknown-linux-gnu-gdb -ex "target remote host.docker.internal:${PORT}" build/secp256k1_blake160_sighash_all.debug
