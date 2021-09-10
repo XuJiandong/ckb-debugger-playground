@@ -36,9 +36,6 @@ run:
 run-simple-binary:
 	ckb-debugger --bin build/fib
 
-run-simple-binary-debug:
-	ckb-debugger --bin build/fib --gdb-listen 127.0.0.1:9999
-
 run-simple-binary-panic:
 	ckb-debugger --bin  build/panic
 
