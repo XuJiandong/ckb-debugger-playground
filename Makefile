@@ -13,6 +13,8 @@ OBJCOPY := $(TARGET)-objcopy
 CFLAGS := -O0 -fno-builtin-printf -nostdinc \
 -nostdlib -nostartfiles -I deps/ckb-c-stdlib/libc -I deps/ckb-c-stdlib -g
 LDFLAGS := -Wl,-static
+RUST_BIN := rust/contract1/target/riscv64imac-unknown-none-elf/debug/contract1
+RUST_BIN2 := target/riscv64imac-unknown-none-elf/debug/contract1
 
 BUILDER_DOCKER := nervos/ckb-riscv-gnu-toolchain@sha256:aae8a3f79705f67d505d1f1d5ddc694a4fd537ed1c7e9622420a470d59ba2ec3
 
@@ -36,6 +38,9 @@ run:
 run-simple-binary:
 	ckb-debugger --bin build/fib
 
+run-simple-binary-rust:
+	ckb-debugger --bin $(RUST_BIN)
+
 run-simple-binary-panic:
 	ckb-debugger --bin  build/panic
 
@@ -52,6 +57,12 @@ run-debugger:
 
 run-gdb:
 	cd deps/ckb-system-scripts && riscv64-unknown-linux-gnu-gdb -ex "target remote host.docker.internal:${PORT}" build/secp256k1_blake160_sighash_all.debug
+
+run-debugger-rust:
+	ckb-debugger --mode gdb --gdb-listen 127.0.0.1:${PORT} --bin ${RUST_BIN}
+
+run-gdb-rust:
+	cd rust/contract1 && riscv64-unknown-linux-gnu-gdb -ex "target remote host.docker.internal:${PORT}" ${RUST_BIN2}
 
 run-docker:
 	docker run --rm -it -v `pwd`:/code ${BUILDER_DOCKER} bash
